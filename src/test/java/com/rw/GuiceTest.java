@@ -41,4 +41,34 @@ public class GuiceTest
     {
         Guice.createInjector(new DuplicateBindModule());
     }
+
+    @Test
+    public void testRepeatedBinding()
+    {
+        Injector injector = Guice.createInjector(new RepeatedBindModule());
+        ContentClassifier classifier = injector.getInstance(ContentClassifier.class);
+        ContentClassification result = classifier.classify("test string");
+        assertEquals("test string", result.toString());
+    }
+
+    @Test(expected = CreationException.class)
+    public void testDuplicatedBindingInSeparateModules()
+    {
+        Guice.createInjector(new DuplicateBindInstallModule());
+    }
+
+    @Test
+    public void testRepeatedBindingInSeparateModules()
+    {
+        Injector injector = Guice.createInjector(new RepeatedBindInstallModule());
+        ContentClassifier classifier = injector.getInstance(ContentClassifier.class);
+        ContentClassification result = classifier.classify("test string");
+        assertEquals("test string", result.toString());
+    }
+
+    @Test(expected = StackOverflowError.class)
+    public void testReinstallCurrentModule()
+    {
+        Guice.createInjector(new ReinstallModule());
+    }
 }
